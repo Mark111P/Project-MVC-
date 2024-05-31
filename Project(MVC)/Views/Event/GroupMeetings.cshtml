@@ -1,0 +1,96 @@
+﻿@using Project_MVC_.Models.DB
+<form class="buttonForm" asp-controller="User" asp-action="Group" method="post">
+    <input type="hidden" name="groupId" value="@Model.gId" />
+    <button class="myButton">Back</button>
+</form>
+<div class="mainText">Meetings:</div>
+
+<ul class="myUl">
+@{
+    foreach (Meeting m in Model.upcoming)
+    {
+        List<string> vals = new List<string>()
+        {
+            m.Name,
+            m.Description,
+            m.Place,
+            m.Time.ToShortTimeString() + " " + m.Time.ToShortDateString(),
+            m.Id.ToString()
+        };
+        string val = string.Join('|', vals);
+
+        <li onclick="OpenMeeting(event)" class="liGreen">
+            <input type="hidden" value="@val" />
+            @(m.Name) (Time: <span>@(m.Time.ToShortTimeString() + " " + m.Time.ToShortDateString())</span>)
+        </li>
+    }
+    foreach (Meeting m in Model.old)
+    {
+        List<string> vals = new List<string>()
+        {
+            m.Name,
+            m.Description,
+            m.Place,
+            m.Time.ToShortTimeString() + " " + m.Time.ToShortDateString(),
+            m.Id.ToString()
+        };
+        string val = string.Join('|', vals);
+
+        <li onclick="OpenMeeting(event)" class="liGray">
+            <input type="hidden" value="@val" />
+            @(m.Name) (Time: <span>@(m.Time.ToShortTimeString() + " " + m.Time.ToShortDateString())</span>)
+        </li>
+    }
+}
+</ul>
+
+<div id="black" class="blackBack"></div>
+
+<div id="meeting" class="myForm modalForm">
+    <div class="closeDiv"><span onclick="CloseMeeting()">&times;</span></div>
+    <div class="titleText absoluteTitle">Meeting</div>
+
+    <div class="miniText">Name:</div>
+    <input name="name" readonly />
+
+    <div class="miniText">Description:</div>
+    <textarea name="description" readonly></textarea>
+
+    <div class="miniText">Place:</div>
+    <input name="place" readonly />
+
+    <div class="miniText">Time:</div>
+    <input name="time" readonly />
+
+    <form style="grid-column-start: 1; grid-column-end: 3" asp-controller="Event" asp-action="DeleteMeeting" method="post">
+        <input type="hidden" name="groupId" value="@Model.gId" />
+        <input type="hidden" name="meetingId" value="" />
+        @{
+            if (Model.role == "Admin")
+            {
+                <button class="submitButton">Delete</button>
+            }
+        }
+    </form>
+</div>
+
+<script>
+    function OpenMeeting(e) 
+    {
+        let vals = e.target.children[0].value.split('|');
+
+        document.getElementsByName('name')[0].value = vals[0];
+        document.getElementsByName('description')[0].value = vals[1];
+        document.getElementsByName('place')[0].value = vals[2];
+        document.getElementsByName('time')[0].value = vals[3];
+        document.getElementsByName('meetingId')[0].value = parseInt(vals[4]);
+
+        black.style.display = "block";
+        meeting.style.display = "grid";
+    }
+    function CloseMeeting() 
+    {
+        black.style.display = "none";
+        meeting.style.display = "none";
+    }
+</script>

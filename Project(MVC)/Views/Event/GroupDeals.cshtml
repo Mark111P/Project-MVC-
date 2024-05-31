@@ -1,0 +1,119 @@
+﻿@using Project_MVC_.Models.DB
+<form class="buttonForm" asp-controller="User" asp-action="Group" method="post">
+    <input type="hidden" name="groupId" value="@Model.gId" />
+    <button class="myButton">Back</button>
+</form>
+<div class="mainText">Deals:</div>
+
+<ul class="myUl">
+@{
+    foreach (Deal d in Model.upcoming)
+    {
+        List<string> vals = new List<string>()
+        {
+            d.Name,
+            d.Description,
+            d.Price.ToString(),
+            d.Time.ToShortTimeString() + " " + d.Time.ToShortDateString(),
+            d.Status,
+            d.Id.ToString()
+        };
+        string val = string.Join('|', vals);
+
+        <li onclick="OpenDeal(event)" class="liBlue">
+            <input type="hidden" value="@val" />
+            @(d.Name) (Time: <span>@(d.Time.ToShortTimeString() + " " + d.Time.ToShortDateString())</span>)
+        </li>
+    }
+    foreach (Deal d in Model.old)
+    {
+        List<string> vals = new List<string>()
+        {
+            d.Name,
+            d.Description,
+            d.Price.ToString(),
+            d.Time.ToShortTimeString() + " " + d.Time.ToShortDateString(),
+            d.Status,
+            d.Id.ToString()
+        };
+        string val = string.Join('|', vals);
+
+        <li onclick="OpenDeal(event)" class="liGray">
+            <input type="hidden" value="@val" />
+            @(d.Name) (Time: <span>@(d.Time.ToShortTimeString() + " " + d.Time.ToShortDateString())</span>)
+        </li>
+    }
+}
+</ul>
+
+<div id="black" class="blackBack"></div>
+
+<div id="deal" class="myForm modalForm">
+    <div class="closeDiv"><span onclick="CloseDeal()">&times;</span></div>
+    <div class="titleText absoluteTitle">Deal</div>
+
+    <div class="miniText">Name:</div>
+    <input name="name" readonly />
+
+    <div class="miniText">Description:</div>
+    <textarea name="description" readonly></textarea>
+
+    <div class="miniText">Price:</div>
+    <input name="price" readonly />
+
+    <div class="miniText">Time:</div>
+    <input name="time" readonly />
+
+    <div class="miniText">Status:</div>
+    <input name="status" readonly />
+
+    <form style="grid-column-start: 1; grid-column-end: 3" asp-controller="Event" asp-action="CompleteDeal" method="post">
+        <input type="hidden" name="groupId" value="@Model.gId" />
+        <input type="hidden" name="dealId" value="" />
+        <button id="completeButton" class="submitButton">Complete</button>
+    </form>
+
+    <form style="grid-column-start: 1; grid-column-end: 3" asp-controller="Event" asp-action="DeleteDeal" method="post">
+        <input type="hidden" name="groupId" value="@Model.gId" />
+        <input type="hidden" name="dealId" value="" />
+        @{
+            if (Model.role == "Admin")
+            {
+                <button class="submitButton">Delete</button>
+            }
+        }
+    </form>
+</div>
+
+<script>
+    function OpenDeal(e) 
+    {
+        let vals = e.target.children[0].value.split('|');
+
+        document.getElementsByName('name')[0].value = vals[0];
+        document.getElementsByName('description')[0].value = vals[1];
+        document.getElementsByName('price')[0].value = vals[2];
+        document.getElementsByName('time')[0].value = vals[3];
+        document.getElementsByName('status')[0].value = vals[4];
+
+        document.getElementsByName('dealId')[0].value = parseInt(vals[5]);
+        document.getElementsByName('dealId')[1].value = parseInt(vals[5]);
+
+        if ('@Model.role' == 'Admin' && vals[4] == 'Planned')
+        {
+            completeButton.style.display = 'block';
+        }
+        else
+        {
+            completeButton.style.display = 'none';
+        }
+
+        black.style.display = "block";
+        deal.style.display = "grid";
+    }
+    function CloseDeal() 
+    {
+        black.style.display = "none";
+        deal.style.display = "none";
+    }
+</script>

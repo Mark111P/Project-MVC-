@@ -1,0 +1,373 @@
+﻿<div>
+    <form class="buttonForm" asp-action="Group" method="post">
+        <input type="hidden" name="groupId" value="@Model.gId" />
+        <button class="myButton">Back</button>
+    </form>
+
+    <div>
+        <span class="miniText">Month: </span>
+        <input type="number" id="inputMonth" min=1 max=12 value=1 oninput="FillTbl()">
+        <span class="miniText">Year: </span>
+        <input type="number" id="inputYear" min=2000 max=2050 value=2000 oninput="FillTbl()">
+    </div>
+    <br>
+    <div id="textDate" class="miniText">Date</div>
+    <br>
+    <table id="tbl">
+        <tr>
+            <th class="cell">MON</th>
+            <th class="cell">TUE</th>
+            <th class="cell">WED</th>
+            <th class="cell">THU</th>
+            <th class="cell">FRI</th>
+            <th class="cell">SUT</th>
+            <th class="cell">SUN</th>
+        </tr>
+        @{
+            for (int i = 0; i < 6; i++)
+            {
+                            <tr>
+                                @{
+                        for (int j = 0; j < 7; j++)
+                        {
+                                                     <td class="cell" onclick="ClickDate(event)"></td>
+                        }
+                                }
+                            </tr>
+            }
+        }
+    </table>
+</div>
+
+<form id="dateForm" asp-controller="User" asp-action="AddEvent" method="post">
+    <input type="hidden" name="groupId" value=@Model.gId />
+    <input type="hidden" name="day" />
+    <input type="hidden" name="month" />
+    <input type="hidden" name="year" />
+</form>
+
+@{
+    if (Model.date != null)
+    {
+                        <script>
+                            document.getElementById('inputYear').value = @Model.date.Year;
+                            document.getElementById('inputMonth').value = @Model.date.Month;
+                        </script>
+    }
+    else
+    {
+                        <script>
+                            let d = new Date();
+
+                            document.getElementById('inputYear').value = d.getFullYear();
+                            document.getElementById('inputMonth').value = d.getMonth() + 1;
+                        </script>
+    }
+}
+ <script>
+    function ClickDate(e) 
+    { 
+        let obj = e.target;
+        if (obj.style.backgroundColor == 'rgb(255, 212, 212)') 
+        { 
+            document.getElementsByName('day')[0].value = parseInt(obj.textContent);
+            dateForm.submit();
+        }
+    }
+    function CheckIsRight()
+    {
+        let m = document.getElementById('inputMonth');
+
+        let mVal = m.value;
+        let mMin = m.min;
+        let mMax = m.max;
+
+        let y = document.getElementById('inputYear');
+
+        let yVal = y.value;
+        let yMin = y.min;
+        let yMax = y.max;
+
+        if (parseInt(mVal) < mMin || mVal == '') 
+        { 
+            document.getElementById('inputMonth').value = mMin;
+        }
+        else if (parseInt(mVal) > (mMax))
+        {
+            document.getElementById('inputMonth').value = mMax;
+        }
+        if (parseInt(yVal) < yMin || yVal == '' )
+        { 
+            document.getElementById('inputYear').value = yMin;
+        }
+        else if (parseInt(yVal) > yMax) 
+        {
+            document.getElementById('inputYear').value = yMax;
+        }
+    }
+    function FillTbl()
+    {
+        CheckIsRight();
+
+        let m = document.getElementById('inputMonth').value;
+        let y = document.getElementById('inputYear').value;
+        
+        document.getElementsByName('month')[0].value = parseInt(m);
+        document.getElementsByName('year')[0].value = parseInt(y);
+
+        let d = new Date(parseInt(y), parseInt(m)-1, 1);
+        let daysin = 33 - (new Date(parseInt(y), parseInt(m)-1, 33)).getDate();
+
+        let t = document.getElementById('textDate');
+        let smtn = d.toDateString().split(' ');
+        t.textContent = smtn[1] + ', ' + smtn[3];
+
+        let tbl = document.getElementById('tbl');
+        let row = 1;
+
+        ClearTbl();
+        for (let i = 0; i < daysin; i++)
+        {
+            tbl.children[0].children[row].children[(d.getDay() + 6 + i) % 7].textContent = i + 1;
+
+            let currentDateTime = new Date();
+            let currentDate = new Date(currentDateTime.getFullYear(), currentDateTime.getMonth(), currentDateTime.getDate());
+            let testDate = new Date(parseInt(y), parseInt(m) - 1, i + 1);
+
+            if (currentDate > testDate) 
+            { 
+                tbl.children[0].children[row].children[(d.getDay() + 6 + i) % 7].style.backgroundColor = 'lightgray';
+            }
+            else
+            {
+                tbl.children[0].children[row].children[(d.getDay() + 6 + i) % 7].style.backgroundColor = 'rgb(255, 212, 212)';
+                tbl.children[0].children[row].children[(d.getDay() + 6 + i) % 7].style.cursor = 'pointer';
+            }
+            
+            if ((d.getDay() + 6 + i)%7 == 6)
+            {
+                row++;
+            }
+        }
+    }
+    function ClearTbl()
+    {
+        let tbl = document.getElementById('tbl');
+        for (let i = 1; i < 7; i++)
+        {
+            for (let j = 0; j < 7; j++)
+            {
+                tbl.children[0].children[i].children[j].textContent = '';
+                tbl.children[0].children[i].children[j].style.backgroundColor = 'inherit';
+                tbl.children[0].children[i].children[j].style.cursor = 'default';
+            }
+        }
+    }
+
+    FillTbl();
+
+    function ClickHour(e)
+    {
+        alert(e.target.textContent);
+    }
+</script>
+
+
+
+
+<br />
+<div class="miniText">@Model.date.ToShortDateString()</div>
+<table class="timeTable">
+    <tr>
+        <th>Hours:</th>
+        @{
+            int x = -1;
+
+            DateTime now = DateTime.Now;
+            DateTime check = Model.date;
+
+            if (now.Year == check.Year && now.Month == check.Month && now.Day == check.Day)
+            {
+                x = now.Hour;
+            }
+
+            for (int i = 0; i < 24; i++)
+            {
+                if (i > x)
+                {
+                                <th style="background-color: rgb(255, 212, 212); user-select: none; cursor: pointer" onclick="ClickHour(event)">@i</th>
+                }
+                else
+                {
+                                <th style="background-color: lightgray; user-select: none;">@i</th>
+                }
+            }
+        }
+    </tr>
+
+
+
+        @{
+            foreach (LoginTime lt in Model.times)
+            {
+                            <tr>
+                                <td>@lt.NameLogin</td>
+                                @{
+                            for (int i = 0; i < 24; i++)
+                            {
+                                if (lt.Times.Count(j => j == i) > 0 && i > x)
+                                {
+                                                            <td style="background-color: rgb(255, 115, 115)"></td>
+                                }
+                                else if (lt.Times.Count(j => j == i) > 0)
+                                {
+                                                            <td style="background-color: dimgray"></td>
+                                }
+                                else
+                                {
+                                                            <th></th>
+                                }
+                            }
+                                }
+                            </tr>
+            }
+        }
+</table>
+
+
+<div id="black" class="blackBack"></div>
+
+<div id="choose" class="myForm modalForm">
+    <div class="closeDiv"><span onclick="CloseAllModal()">&times;</span></div>
+    <div class="titleText absoluteTitle">Meeting or Deal</div>
+    <button style="grid-column-start: 1; grid-column-end: 3" class="submitButton" onclick="ClickMeeting()">Meeting</button>
+    <button style="grid-column-start: 1; grid-column-end: 3" class="submitButton" onclick="ClickDeal()">Deal</button>
+</div>
+
+<form id="meeting" class="myForm modalForm" asp-controller="User" asp-action="AddMeeting" method="post" onsubmit="return CheckMeeting()">
+    <div class="closeDiv"><span onclick="CloseAllModal()">&times;</span></div>
+    <input name="groupId" type="hidden" value="@Model.gId" />
+    <div class="titleText absoluteTitle">Add Meeting</div>
+
+    <div class="miniText">Name:</div>
+    <input name="name" placeholder="2-20 chars" value="" />
+    <div class="miniText">Description:</div>
+    <textarea name="description" placeholder="2-100 chars" value="" ></textarea>
+    <div class="miniText">Place:</div>
+    <input name="place" placeholder="2-30 chars" value="" />
+
+    <div class="miniText">Time:</div>
+    <input name="time" readonly/>
+    <input name="groupId" type="hidden" value="@Model.gId" />
+
+    <button style="grid-column-start: 1; grid-column-end: 3" class="submitButton">Add</button>
+</form>
+
+<form id="deal" class="myForm modalForm" asp-controller="User" asp-action="AddDeal" method="post" onsubmit="return CheckDeal()">
+    <div class="closeDiv"><span onclick="CloseAllModal()">&times;</span></div>
+    <input name="groupId" type="hidden" value="@Model.gId" />
+    <div class="titleText absoluteTitle">Add Deal</div>
+
+    <div class="miniText">Name:</div>
+    <input name="name" placeholder="2-20 chars" value="" />
+    <div class="miniText">Description:</div>
+    <textarea name="description" placeholder="2-100 chars" value=""></textarea>
+    <div class="miniText">Price:</div>
+    <input name="price" type="number" value="0" min="0" max="1000000" placeholder="0 - 1.000.000" />
+
+    <div class="miniText">Time:</div>
+    <input name="time" readonly />
+    <input name="groupId" type="hidden" value="@Model.gId" />
+
+    <button style="grid-column-start: 1; grid-column-end: 3" class="submitButton">Add</button>
+</form>
+
+<script>
+    function ClickHour(e)
+    {
+        black.style.display = "block";
+        choose.style.display = "grid";
+
+        let time = e.target.textContent + ":00 " + "@Model.date.ToShortDateString()";
+
+        if (e.target.textContent.length == 1) 
+        {
+            time = "0" + time;
+        }
+
+        document.getElementsByName('time')[0].value = time;
+        document.getElementsByName('time')[1].value = time;
+    }
+    function CloseAllModal() 
+    {
+        black.style.display = "none";
+        choose.style.display = "none";
+        meeting.style.display = "none";
+        deal.style.display = "none";
+    }
+    function ClickMeeting() 
+    { 
+        meeting.style.display = "grid";
+        choose.style.display = "none";
+    }
+    function ClickDeal() 
+    { 
+        deal.style.display = "grid";
+        choose.style.display = "none";
+    }
+
+    function CheckMeeting()
+    {
+        let isOk = true;
+
+        let name = document.getElementsByName('name')[0].value;
+        let desc = document.getElementsByName('description')[0].value;
+        let place = document.getElementsByName('place')[0].value;
+
+        if (!/^\S.{0,18}\S$/gm.test(name))
+        {
+            isOk = false;
+            document.getElementsByName('name')[0].value = '';
+        }
+        if (!/^\S.{0,98}\S$/gm.test(desc))
+        {
+            isOk = false;
+            document.getElementsByName('description')[0].value = '';
+        }
+        if (!/^\S.{0,28}\S$/gm.test(place))
+        {
+            isOk = false;
+            document.getElementsByName('place')[0].value = '';
+        }
+
+        if (!isOk)
+        {
+            alert('Wrong info');
+        }
+        return isOk;
+    }
+    function CheckDeal()
+    {
+        let isOk = true;
+
+        let name = document.getElementsByName('name')[1].value;
+        let desc = document.getElementsByName('description')[1].value;
+
+        if (!/^\S.{0,18}\S$/gm.test(name))
+        {
+            isOk = false;
+            document.getElementsByName('name')[0].value = '';
+        }
+        if (!/^\S.{0,98}\S$/gm.test(desc))
+        {
+            isOk = false;
+            document.getElementsByName('description')[0].value = '';
+        }
+
+        if (!isOk)
+        {
+            alert('Wrong info');
+        }
+        return isOk;
+    }
+</script>

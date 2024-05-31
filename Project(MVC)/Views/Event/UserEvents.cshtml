@@ -1,0 +1,167 @@
+﻿@using Project_MVC_.Models.DB
+
+<div class="row">
+    <div>
+        <div class="mainText">Meetings:</div>
+
+        <ul class="myUl">
+            @{
+                foreach (Meeting m in Model.upcomingM)
+                {
+                    List<string> vals = new List<string>()
+                    {
+                        m.Name,
+                        m.Description,
+                        m.Place,
+                        m.Time.ToShortTimeString() + " " + m.Time.ToShortDateString(),
+                        m.Id.ToString()
+                    };
+                    string val = string.Join('|', vals);
+
+                    <li onclick="OpenMeeting(event)" class="liGreen">
+                        <input type="hidden" value="@val" />
+                        @(m.Name) (Time: <span>@(m.Time.ToShortTimeString() + " " + m.Time.ToShortDateString())</span>)
+                    </li>
+                }
+                foreach (Meeting m in Model.oldM)
+                {
+                    List<string> vals = new List<string>()
+                    {
+                        m.Name,
+                        m.Description,
+                        m.Place,
+                        m.Time.ToShortTimeString() + " " + m.Time.ToShortDateString(),
+                        m.Id.ToString()
+                    };
+                    string val = string.Join('|', vals);
+
+                    <li onclick="OpenMeeting(event)" class="liGray">
+                        <input type="hidden" value="@val" />
+                        @(m.Name) (Time: <span>@(m.Time.ToShortTimeString() + " " + m.Time.ToShortDateString())</span>)
+                    </li>
+                }
+            }
+        </ul>
+    </div>
+    <div>
+        <div class="mainText">Deals:</div>
+
+        <ul class="myUl">
+            @{
+                foreach (Deal d in Model.upcomingD)
+                {
+                    List<string> vals = new List<string>()
+                    {
+                        d.Name,
+                        d.Description,
+                        d.Price.ToString(),
+                        d.Time.ToShortTimeString() + " " + d.Time.ToShortDateString(),
+                        d.Status,
+                        d.Id.ToString()
+                    };
+                    string val = string.Join('|', vals);
+
+                    <li onclick="OpenDeal(event)" class="liBlue">
+                        <input type="hidden" value="@val" />
+                        @(d.Name) (Time: <span>@(d.Time.ToShortTimeString() + " " + d.Time.ToShortDateString())</span>)
+                    </li>
+                }
+                foreach (Deal d in Model.oldD)
+                {
+                    List<string> vals = new List<string>()
+                    {
+                        d.Name,
+                        d.Description,
+                        d.Price.ToString(),
+                        d.Time.ToShortTimeString() + " " + d.Time.ToShortDateString(),
+                        d.Status,
+                        d.Id.ToString()
+                    };
+                    string val = string.Join('|', vals);
+
+                    <li onclick="OpenDeal(event)" class="liGray">
+                        <input type="hidden" value="@val" />
+                        @(d.Name) (Time: <span>@(d.Time.ToShortTimeString() + " " + d.Time.ToShortDateString())</span>)
+                    </li>
+                }
+            }
+        </ul>
+    </div>
+</div>
+
+<div id="black" class="blackBack"></div>
+
+<div id="meeting" class="myForm modalForm">
+    <div class="closeDiv"><span onclick="CloseMeeting()">&times;</span></div>
+    <div class="titleText absoluteTitle">Meeting</div>
+
+    <div class="miniText">Name:</div>
+    <input name="name" readonly />
+
+    <div class="miniText">Description:</div>
+    <textarea name="description" readonly></textarea>
+
+    <div class="miniText">Place:</div>
+    <input name="place" readonly />
+
+    <div class="miniText">Time:</div>
+    <input name="time" readonly />
+</div>
+
+<div id="deal" class="myForm modalForm">
+    <div class="closeDiv"><span onclick="CloseDeal()">&times;</span></div>
+    <div class="titleText absoluteTitle">Deal</div>
+
+    <div class="miniText">Name:</div>
+    <input name="name" readonly />
+
+    <div class="miniText">Description:</div>
+    <textarea name="description" readonly></textarea>
+
+    <div class="miniText">Price:</div>
+    <input name="price" readonly />
+
+    <div class="miniText">Time:</div>
+    <input name="time" readonly />
+
+    <div class="miniText">Status:</div>
+    <input name="status" readonly />
+</div>
+
+<script>
+    function OpenMeeting(e) 
+    {
+        let vals = e.target.children[0].value.split('|');
+
+        document.getElementsByName('name')[0].value = vals[0];
+        document.getElementsByName('description')[0].value = vals[1];
+        document.getElementsByName('place')[0].value = vals[2];
+        document.getElementsByName('time')[0].value = vals[3];
+
+        black.style.display = "block";
+        meeting.style.display = "grid";
+    }
+    function CloseMeeting() 
+    {
+        black.style.display = "none";
+        meeting.style.display = "none";
+    }
+    function OpenDeal(e) 
+    {
+        let vals = e.target.children[0].value.split('|');
+
+        document.getElementsByName('name')[1].value = vals[0];
+        document.getElementsByName('description')[1].value = vals[1];
+        document.getElementsByName('price')[0].value = vals[2];
+        document.getElementsByName('time')[1].value = vals[3];
+        document.getElementsByName('status')[0].value = vals[4];
+
+        black.style.display = "block";
+        deal.style.display = "grid";
+    }
+    function CloseDeal() 
+    {
+        black.style.display = "none";
+        deal.style.display = "none";
+    }
+</script>

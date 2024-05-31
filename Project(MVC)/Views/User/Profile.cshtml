@@ -1,0 +1,97 @@
+﻿<link rel="stylesheet" href="~/css/mycss.css" asp-append-version="true" />
+
+<script>
+    function CheckForm() 
+    {
+        let name = document.getElementsByName('name')[0].value;
+
+        let email = document.getElementsByName('email')[0].value;
+        let number = document.getElementsByName('phoneNumber')[0].value;
+        let adress = document.getElementsByName('adress')[0].value;
+
+        let isOk = true;
+
+        if (!/^[A-Z]{1}[A-Za-z ]{1,49}$/gm.test(name)) 
+        {
+            isOk = false;
+            document.getElementsByName('name')[0].value = '@Model.Name';
+        }
+
+        if (!/^\S{2,20}@@\S{2,10}[.]\S{2,5}$/gm.test(email)) 
+        {
+            isOk = false;
+            document.getElementsByName('email')[0].value = '@Model.Email';
+        }
+
+        if (!/^[+]\d{1,4}-\d{3}-\d{3}-\d{3}$/gm.test(number)) 
+        {
+            isOk = false;
+            document.getElementsByName('phoneNumber')[0].value = '@Html.Raw(Model.PhoneNumber)';
+        }
+
+        if (!/^[A-Z]{1}[A-Za-z1-9 ]{1,49}$/gm.test(adress)) 
+        {
+            isOk = false;
+            document.getElementsByName('adress')[0].value = '@Model.Adress';
+        }
+
+        if (!isOk) 
+        {
+            alert('Wrong info');
+        }
+        return isOk;
+    }
+</script>
+
+<form asp-controller="User" asp-action="ChangeProfile" method="post" class="myForm" onsubmit="return CheckForm()">
+    <div style="grid-column-start: 1; grid-column-end: 3" class="titleText">Profile</div>
+
+    <div class="miniText">Name:</div>
+    <input name="name" value="@Model.Name" placeholder="Must start with A-Z, 2-50 non-digits" />
+    <div class="miniText">Login:</div>
+    <input name="login" value="@Model.Login" readonly>
+
+    <div class="miniText">Email:</div>
+    <input name="email" value="@Model.Email" placeholder="[2-20]@@[2-10].[2-5] non-whitespace" />
+    <div class="miniText">Number:</div>
+    <input name="phoneNumber" value="@Model.PhoneNumber" placeholder="+[1-4]-123-456-789" />
+    <div class="miniText">Adress:</div>
+    <input name="adress" value="@Model.Adress" placeholder="Must start with A-Z, 2-50 chars" />
+
+    <button style="grid-column-start: 1; grid-column-end: 3" class="submitButton">Change</button>
+</form>
+<br />
+
+<script>
+    function CheckPassword() 
+    { 
+        let p = document.getElementsByName('pass')[0].value;
+        let np = document.getElementsByName('newpass')[0].value;
+
+        if (p != '@Model.Password') 
+        { 
+            alert("Wrong password");
+            return false;
+        }
+        if (!/^\S{8,20}$/gm.test(np)) 
+        { 
+            alert("New password must be 8-20 chars without spaces");
+            return false;
+        }
+
+        return true;
+    }
+</script>
+<form asp-controller="User" asp-action="ChangePass" method="post" class="myForm" onsubmit="return CheckPassword()">
+    <div style="grid-column-start: 1; grid-column-end: 3" class="titleText">Change password</div>
+
+    <div class="miniText">Password now:</div>
+    <input name="pass" type="password" placeholder="Your password"/>
+    
+    <div class="miniText">New password:</div>
+    <input name="newpass" type="password" placeholder="8-20 non-whitespace characters" />
+
+    <input name="login" type="hidden" value="@Model.Login"/>
+
+    <button style="grid-column-start: 1; grid-column-end: 3" class="submitButton">Change</button>
+</form>

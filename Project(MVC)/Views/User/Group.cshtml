@@ -1,0 +1,318 @@
+﻿@using Project_MVC_.Models.DB
+@{
+    bool cantChange = !Model.canDo.Contains("changeCanDo");
+    string rights = string.Join('|', Model.rights);
+}
+
+<form class="buttonForm" asp-action="Groups" method="post">
+    <button class="myButton">Back</button>
+</form>
+@{
+    if (Model.role == "Admin")
+    {
+        <div class="groupName" style="user-select: none; cursor: pointer" onclick="OpenChangeGroupName()">@Model.group.Name</div>
+    }
+    else
+    {
+        <div class="groupName" style="user-select: none">@Model.group.Name</div>
+    }
+}
+
+<div class="row" style="margin-left: 0">
+    @{
+        List<string> canDo = Model.canDo;
+        if (canDo.Contains("invite"))
+        {
+            <button class="myButton" onclick="OpenInvite()">Invite User</button>
+        }
+        if (canDo.Contains("addEvent"))
+        {
+            <form class="buttonForm" asp-action="AddEvent" method="post">
+                <input type="hidden" name="groupId" value="@Model.group.Id" />
+                <button class="myButton">Add Event</button>
+            </form>
+        }
+        <form class="buttonForm" asp-controller="Event" asp-action="GroupMeetings" method="post">
+            <input type="hidden" name="groupId" value="@Model.group.Id" />
+            <button class="myButton">Meetings</button>
+        </form>
+        <form class="buttonForm" asp-controller="Event" asp-action="GroupDeals" method="post">
+            <input type="hidden" name="groupId" value="@Model.group.Id" />
+            <button class="myButton">Deals</button>
+        </form>
+    }
+</div>
+
+<ul class="myUl">
+    @{
+        foreach (Member m in Model.members)
+        {
+            string style = "liRed";
+
+            if (Model.login == m.User.Login)
+            {
+                style = "liBlue";
+            }
+            else if (m.Role == "Admin")
+            {
+                style = "liGreen";
+            }
+
+            List<string> vals = new List<string>()
+            {
+                m.User.Name,
+                m.User.Login,
+                m.User.Email,
+                m.User.PhoneNumber,
+                m.User.Adress,
+                m.Role,
+                m.CanDo
+            };
+
+                            <li class="@style" onclick="OpenProfile(event)">
+                                <input name="info" type="hidden" value="@string.Join('&', vals)"/>
+                                @(m.User.Name) (Role: <span onclick="OpenProfile(event.target.parentElement)">@(m.Role)</span>)
+                                @{
+                                    if (style == "liRed" && Model.role == "Admin")
+                                    {
+                                        <button class="checkButton" onclick="OpenKick(event)">
+                                            <div style="display: none">@m.Id</div>
+                                            Kick
+                                        </button>
+                                    }
+                                }
+                            </li>
+        }
+    }
+</ul>
+<div>
+    @{
+        if (Model.role == "Admin")
+        {
+            <button class="myButton" onclick="OpenDeleteGroup()">Delete group</button>
+        }
+        else
+        {
+            <button class="myButton" onclick="OpenLeaveGroup()">Leave group</button>
+        }
+    }
+</div>
+
+<div id="black" class="blackBack"></div>
+
+<form id="invite" class="myForm modalForm" asp-controller="User" asp-action="InviteInGroup" method="post">
+    <div class="closeDiv"><span onclick="CloseInvite()">&times;</span></div>
+    <div class="titleText absoluteTitle">Invite</div>
+    <div class="miniText">User's Login:</div>
+    <input name="userLogin" placeholder="login" value="" />
+    <input name="groupId" type="hidden" value="@Model.group.Id"/>
+    <button style="grid-column-start: 1; grid-column-end: 3" class="submitButton">Invite</button>
+</form>
+
+<form id="profile" class="myForm modalForm" asp-controller="User" asp-action="ChangeCanDo" method="post" onsubmit="return CheckRole()">
+    <div class="closeDiv"><span onclick="CloseProfile()">&times;</span></div>
+    <div class="titleText absoluteTitle">Profile</div>
+
+    <div class="miniText">Name:</div>
+    <input name="name" value="" readonly/>
+    <div class="miniText">Login:</div>
+    <input name="login" value="" readonly>
+
+    <div class="miniText">Email:</div>
+    <input name="email" value=""readonly />
+    <div class="miniText">Number:</div>
+    <input name="phoneNumber" value="" readonly />
+    <div class="miniText">Adress:</div>
+    <input name="adress" value="" readonly />
+
+    <div class="miniText">Role:</div>
+    <input name="role" value="" disabled placeholder="1-20 chars" />
+    <input name="oldrole" value="" type="hidden"/>
+
+    <div style="grid-column-start: 1; grid-column-end: 3">
+        @{
+            foreach (string r in Model.rights)
+            {
+                            <input type="checkbox" name="@r" value="@r"/> <span class="miniText">@r</span><br />
+            }
+        }
+    </div>
+
+    <input type="hidden" name="rights" value="" />
+
+    <input type="hidden" name="groupId" value="@Model.group.Id"/>
+
+    <button id="changeProfileButton" style="grid-column-start: 1; grid-column-end: 3" class="submitButton" disabled="@cantChange" onclick="FillRights()">Change</button>
+</form>
+
+<form id="groupNameForm" class="myForm modalForm" asp-controller="User" asp-action="ChangeGroupName" method="post" onsubmit="return CheckNameGroup()">
+    <div class="closeDiv"><span onclick="CloseChangeGroupName()">&times;</span></div>
+    <div class="titleText absoluteTitle">Change group name</div>
+    <input name="groupId" type="hidden" value="@Model.group.Id" />
+    <div class="miniText">New name:</div>
+    <input name="newGroupName" placeholder="2-20 chars" value="@Model.group.Name" />
+    <button style="grid-column-start: 1; grid-column-end: 3" class="submitButton">Change</button>
+</form>
+
+<div id="kick" class="myForm checkForm modalForm">
+    <div class="closeDiv"><span onclick="CloseKick()">&times;</span></div>
+    <div class="titleText absoluteTitle">Are you sure?</div>
+    <form asp-controller="User" asp-action="KickUser" method="post">
+        <input name="kickMemberId" type="hidden" value="" />
+        <button class="checkButton">Yes</button>
+    </form>
+    <button class="checkButton" onclick="CloseKick()">No</button>
+</div>
+
+<div id="deleteGroup" class="myForm checkForm modalForm">
+    <div class="closeDiv"><span onclick="CloseDeleteGroup()">&times;</span></div>
+    <div class="titleText absoluteTitle">Are you sure?</div>
+    <form asp-controller="User" asp-action="DeleteGroup" method="post">
+        <input name="groupId" type="hidden" value="@Model.group.Id" />
+        <button class="checkButton">Yes</button>
+    </form>
+    <button class="checkButton" onclick="CloseDeleteGroup()">No</button>
+</div>
+
+<div id="leaveGroup" class="myForm checkForm modalForm">
+    <div class="closeDiv"><span onclick="CloseLeaveGroup()">&times;</span></div>
+    <div class="titleText absoluteTitle">Are you sure?</div>
+    <form asp-controller="User" asp-action="LeaveGroup" method="post">
+        <input name="groupId" type="hidden" value="@Model.group.Id" />
+        <button class="checkButton">Yes</button>
+    </form>
+    <button class="checkButton" onclick="CloseLeaveGroup()">No</button>
+</div>
+
+<script>
+    function OpenKick(e) 
+    {
+        document.getElementsByName('kickMemberId')[0].value = e.target.children[0].textContent;
+        black.style.display = "block";
+        kick.style.display = "grid";
+    }
+    function CloseKick() 
+    {
+        black.style.display = "none";
+        kick.style.display = "none";
+    }
+
+    function OpenDeleteGroup() 
+    {
+        black.style.display = "block";
+        deleteGroup.style.display = "grid";
+    }
+    function CloseDeleteGroup() 
+    {
+        black.style.display = "none";
+        deleteGroup.style.display = "none";
+    }
+
+    function OpenLeaveGroup() 
+    {
+        black.style.display = "block";
+        leaveGroup.style.display = "grid";
+    }
+    function CloseLeaveGroup() 
+    {
+        black.style.display = "none";
+        leaveGroup.style.display = "none";
+    }
+
+    function CheckNameGroup() 
+    { 
+        let val = document.getElementsByName('newGroupName')[0].value;
+
+        if (!/^\S.{1,19}$/gm.test(val))
+        {
+            alert('Wrong info');
+            return false;
+        }
+
+        return true;
+    }
+    function OpenChangeGroupName() 
+    {
+        black.style.display = "block";
+        groupNameForm.style.display = "grid";
+    }
+    function CloseChangeGroupName() 
+    {
+        black.style.display = "none";
+        groupNameForm.style.display = "none";
+    }
+    function CheckRole()
+    {
+        if (!/^\S.{0,19}$/gm.test(document.getElementsByName('role')[0].value) || document.getElementsByName('role')[0].value == 'Admin') 
+        { 
+            document.getElementsByName('role')[0].value = document.getElementsByName('oldrole')[0].value;
+            alert('Wrong info');
+            return false;
+        }
+        return true;
+    }
+    function OpenInvite() 
+    {
+        black.style.display = "block";
+        invite.style.display = "grid";
+    }
+    function CloseInvite() 
+    {
+        black.style.display = "none";
+        invite.style.display = "none";
+    }
+    function OpenProfile(e) 
+    { 
+        let vals = e.target.children[0].value.split('&');
+        let isDisabled = '@cantChange' == 'True' || '@Model.login' == vals[1] || vals[5] == 'Admin';
+
+        changeProfileButton.disabled = isDisabled;
+        document.getElementsByName('role')[0].disabled = isDisabled;
+
+        let allRights = '@rights'.split('|');
+        let userRights = vals[6].split('|');
+
+        for (let i = 0; i < allRights.length; i++) 
+        { 
+            if (userRights.includes(allRights[i]))
+            {
+                document.getElementsByName(allRights[i])[0].checked = true;
+            }
+            else
+            {
+                document.getElementsByName(allRights[i])[0].checked = false;
+            }
+            document.getElementsByName(allRights[i])[0].disabled = isDisabled;
+        }
+
+        document.getElementsByName('name')[0].value = vals[0];
+        document.getElementsByName('login')[0].value = vals[1];
+        document.getElementsByName('email')[0].value = vals[2];
+        document.getElementsByName('phoneNumber')[0].value = vals[3];
+        document.getElementsByName('adress')[0].value = vals[4];
+        document.getElementsByName('role')[0].value = vals[5];
+        document.getElementsByName('oldrole')[0].value = vals[5];
+
+        black.style.display = "block";
+        profile.style.display = "grid";
+    }
+    function CloseProfile()
+    {
+        black.style.display = "none";
+        profile.style.display = "none";
+    }
+    function FillRights()
+    {
+        let vals = [];
+        let allRights = '@rights'.split('|');
+        for (let i = 0; i < allRights.length; i++) 
+        {
+            if (document.getElementsByName(allRights[i])[0].checked) 
+            { 
+                vals.push(allRights[i]);
+            }
+        }
+
+        document.getElementsByName('rights')[0].value = vals.join('|');
+    }
+</script>

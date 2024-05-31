@@ -1,0 +1,95 @@
+﻿@using Project_MVC_.Models.DB
+
+<script>
+    function GetGroup(e)
+    {
+        e.target.children[0].submit();
+    }
+    function GetGroupSpan(e) 
+    { 
+        e.target.parentElement.children[0].submit();
+    }
+</script>
+
+<div class="row">
+    <div>
+        <div class="mainText">Groups:</div>
+        <button onclick="OpenAddGroup()" class="myButton">Create Group</button>
+        <ul class="myUl">
+        @{
+            foreach (Group group in Model.groups)
+            {
+                <li onclick="GetGroup(event)" class="liRed">
+                    <form asp-action="Group" asp-controller="User" method="post">
+                        <input name="groupId" type="hidden" value="@group.Id"/>
+                    </form>
+                    @(group.Name) (Role: <span onclick="GetGroupSpan(event)">@((Model.members as List<Member>).First(i => i.GroupId == group.Id).Role)</span>) (GroupId: <span onclick="GetGroupSpan(event)">@group.Id</span>)
+                </li>
+            }
+        }
+        </ul>
+    </div>
+    <div>
+        @{
+            if (Model.invites.Count > 0)
+            {
+                <div class="mainText">Invites:</div>
+            }
+        }
+        <ul class="invitesUl">
+        @{
+            foreach (Invite invite in Model.invites)
+            {
+                <li>
+                    @((Model.allgroups as List<Group>).First(i => i.Id == invite.GroupId).Name)
+                    <div style="float: right; display: flex; flex-direction: row">
+                        <form asp-action="AcceptInvite" method="post" style="width: fit-content">
+                            <input name="inviteId" type="hidden" value="@invite.Id" />
+                            <button class="acceptButton">Accept</button>
+                        </form>
+                        <form asp-action="DeclineInvite" method="post" style="width: fit-content">
+                            <input name="inviteId" type="hidden" value="@invite.Id" />
+                            <button class="acceptButton">Decline</button>
+                        </form>
+                    </div>
+                </li>
+            }
+        }
+        </ul>
+    </div>
+</div>
+<div id="black" class="blackBack"></div>
+
+<script>
+    function CheckAddGroup() 
+    { 
+        let val = document.getElementsByName('name')[0].value;
+
+        if (!/^\S.{1,19}$/gm.test(val))
+        {
+            alert('Wrong info');
+            return false;
+        }
+
+        return true;
+    }
+</script>
+<form id="myForm" class="myForm modalForm" onsubmit="return CheckAddGroup()" asp-action="AddGroup" method="post">
+    <div class="closeDiv"><span onclick="CloseAddGroup()">&times;</span></div>
+    <div class="titleText absoluteTitle">Add group</div>
+    <div class="miniText">Group name:</div>
+    <input name="name" placeholder="2-20 chars"/>
+    <button style="grid-column-start: 1; grid-column-end: 3" class="submitButton">Add</button>
+</form>
+<script>
+    function OpenAddGroup() 
+    { 
+        black.style.display = "block";
+        myForm.style.display = "grid";
+    }
+    function CloseAddGroup() 
+    { 
+        black.style.display = "none";
+        myForm.style.display = "none";
+    }
+</script>

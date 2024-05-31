@@ -1,0 +1,87 @@
+﻿<script>
+    function CheckReg() 
+    { 
+        let name = document.getElementsByName('name')[0].value;
+        let login = document.getElementsByName('login')[0].value;
+        let pass = document.getElementsByName('password')[0].value;
+
+        let email = document.getElementsByName('email')[0].value;
+        let number = document.getElementsByName('phoneNumber')[0].value;
+        let adress = document.getElementsByName('adress')[0].value;
+
+        let logins = '@Model'.split('|');
+
+        let isOk = true;
+
+        if (!/^[A-Z]{1}[A-Za-z ]{1,49}$/gm.test(name)) 
+        { 
+            isOk = false;
+            document.getElementsByName('name')[0].value = '';
+        }
+
+        if (!/^\S{3,20}$/gm.test(login)) 
+        {
+            isOk = false;
+            document.getElementsByName('login')[0].value = '';
+        }
+        else if (logins.length > 0)
+        { 
+            if (logins.includes(login)) 
+            { 
+                isOk = false;
+                alert('This login is already taken');
+                document.getElementsByName('login')[0].value = '';
+            }
+        }
+
+        if (!/^\S{8,20}$/gm.test(pass)) 
+        {
+            isOk = false;
+            document.getElementsByName('password')[0].value = '';
+        }
+
+        if (!/^\S{2,20}@@\S{2,10}[.]\S{2,5}$/gm.test(email)) 
+        { 
+            isOk = false;
+            document.getElementsByName('email')[0].value = '';
+        }
+
+        if (!/^[+]\d{1,4}-\d{3}-\d{3}-\d{3}$/gm.test(number))
+        {
+            isOk = false;
+            document.getElementsByName('phoneNumber')[0].value = '';
+        }
+
+        if (!/^[A-Z]{1}[A-Za-z1-9 ]{1,49}$/gm.test(adress)) 
+        { 
+            isOk = false;
+            document.getElementsByName('adress')[0].value = '';
+        }
+
+        if (!isOk) 
+        {
+            alert('Wrong info');
+        }
+        return isOk;
+    }
+</script>
+
+<form asp-controller="Login" asp-action="CheckRegistration" method="post" class="myForm" onsubmit="return CheckReg()">
+    <div style="grid-column-start: 1; grid-column-end: 3" class="titleText">Registration</div>
+
+    <div class="miniText">Name:</div>
+    <input name="name" value="" placeholder="Must start with A-Z, 2-50 non-digits" />
+    <div class="miniText">Login:</div>
+    <input name="login" value="" placeholder="3-20 non-whitespace characters" />
+    <div class="miniText">Password:</div>
+    <input name="password" value="" type="password" placeholder="8-20 non-whitespace characters" />
+
+    <div class="miniText">Email:</div>
+    <input name="email" value="" placeholder="[2-20]@@[2-10].[2-5] non-whitespace" />
+    <div class="miniText">Number:</div>
+    <input name="phoneNumber" value="" placeholder="+[1-4]-123-456-789" />
+    <div class="miniText">Adress:</div>
+    <input name="adress" value="" placeholder="Must start with A-Z, 2-50 chars" />
+
+    <button style="grid-column-start: 1; grid-column-end: 3" class="submitButton">Registrate</button>
+</form>
