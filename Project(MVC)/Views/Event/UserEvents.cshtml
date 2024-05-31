@@ -14,7 +14,7 @@
                         m.Description,
                         m.Place,
                         m.Time.ToShortTimeString() + " " + m.Time.ToShortDateString(),
-                        m.Id.ToString()
+                        m.GroupId.ToString()
                     };
                     string val = string.Join('|', vals);
 
@@ -31,7 +31,7 @@
                         m.Description,
                         m.Place,
                         m.Time.ToShortTimeString() + " " + m.Time.ToShortDateString(),
-                        m.Id.ToString()
+                        m.GroupId.ToString()
                     };
                     string val = string.Join('|', vals);
 
@@ -57,7 +57,7 @@
                         d.Price.ToString(),
                         d.Time.ToShortTimeString() + " " + d.Time.ToShortDateString(),
                         d.Status,
-                        d.Id.ToString()
+                        d.GroupId.ToString()
                     };
                     string val = string.Join('|', vals);
 
@@ -75,7 +75,7 @@
                         d.Price.ToString(),
                         d.Time.ToShortTimeString() + " " + d.Time.ToShortDateString(),
                         d.Status,
-                        d.Id.ToString()
+                        d.GroupId.ToString()
                     };
                     string val = string.Join('|', vals);
 
@@ -106,6 +106,9 @@
 
     <div class="miniText">Time:</div>
     <input name="time" readonly />
+
+    <div class="miniText">GroupId:</div>
+    <input name="groupId" readonly />
 </div>
 
 <div id="deal" class="myForm modalForm">
@@ -126,6 +129,9 @@
 
     <div class="miniText">Status:</div>
     <input name="status" readonly />
+
+    <div class="miniText">GroupId:</div>
+    <input name="groupId" readonly />
 </div>
 
 <script>
@@ -137,6 +143,7 @@
         document.getElementsByName('description')[0].value = vals[1];
         document.getElementsByName('place')[0].value = vals[2];
         document.getElementsByName('time')[0].value = vals[3];
+        document.getElementsByName('groupId')[0].value = vals[4];
 
         black.style.display = "block";
         meeting.style.display = "grid";
@@ -155,6 +162,7 @@
         document.getElementsByName('price')[0].value = vals[2];
         document.getElementsByName('time')[1].value = vals[3];
         document.getElementsByName('status')[0].value = vals[4];
+        document.getElementsByName('groupId')[1].value = vals[5];
 
         black.style.display = "block";
         deal.style.display = "grid";
