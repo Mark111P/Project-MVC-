@@ -193,7 +193,11 @@
 
             for (int i = 0; i < 24; i++)
             {
-                if (i > x)
+                if (i > x && !(Model.times as List<LoginTime>).Any(j => j.Times.Any(l => l == i)))
+                {
+                                <th style="background-color: rgb(212, 255, 212); user-select: none; cursor: pointer" onclick="ClickHour(event)">@i</th>
+                }
+                else if (i > x)
                 {
                                 <th style="background-color: rgb(255, 212, 212); user-select: none; cursor: pointer" onclick="ClickHour(event)">@i</th>
                 }

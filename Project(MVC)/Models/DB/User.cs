@@ -10,9 +10,11 @@
         public string PhoneNumber { get; set; }
         public string Adress { get; set; }
         public virtual List<Member> Members { get; set; }
+        public virtual List<Invite> Invites { get; set; }
         public User() 
         { 
             Members = new List<Member>();
+            Invites = new List<Invite>();
         }
     }
 }
